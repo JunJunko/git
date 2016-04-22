@@ -4,6 +4,7 @@
 import os
 from PIL import Image
 
+
 class to_binary():
     def __init__(self):
         # self.dir = dir
@@ -12,7 +13,7 @@ class to_binary():
 
     def save_binary(self):
         dir = "pic/"
-        path = "font/"
+        path = "tmp/"
         for f in os.listdir(dir):
             if f.endswith(".jpg"):
                 img = Image.open(dir + f)  # ????
@@ -36,9 +37,30 @@ class to_binary():
                         if pixdata[x, y][2] > 0:
                             pixdata[x, y] = (255, 255, 255, 255)
 
-                    img.save(path + f, "GIF")
+                    # img.save(path + f, "GIF")
+                return f
+
+
+class sp:
+    __img = ""
+
+    def __init__(self,img):
+        self.__img = img
+
+    def division(self):
+        j = 1
+        dir = "tmp/"
+        f = Image.open(dir + self.__img)
+        for i in range(4):
+            x = 5+i*13  # 这里的数字参数需要自己
+            y = 2           #根据验证码图片的像素进行
+            f.crop((x, y, x+10, y+15)).save("font/%d.gif" % j)   #适当的修改
+            print x, y
+            j += 1
+
 
 
 if __name__ == '__main__':
-    to_binary().save_binary()
-
+    s = sp("1.jpg")
+    s.division()
+    # print to_binary().save_binary()
