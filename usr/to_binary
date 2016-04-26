@@ -2,8 +2,19 @@
 #  -*- coding: UTF-8 -*-
 
 import os
-from PIL import Image
+from PIL import Image,ImageEnhance,ImageFilter
 
+
+
+def numpoint(a):
+    w, h = a.size
+    data = list(a.getdata())
+    mumpoint = 0
+    for x in xrange(w):
+        for y in range(h):
+            if data[y * w + x] != 255:
+                mumpoint += 1
+    return mumpoint
 
 class to_binary():
     def __init__(self):
@@ -15,7 +26,7 @@ class to_binary():
         dir = "pic/"
         path = "tmp/"
         for f in os.listdir(dir):
-            if f.endswith(".jpg"):
+            if f.endswith(".png"):
                 img = Image.open(dir + f)  # ????
                 img = img.convert("RGBA")
                 pixdata = img.load()
@@ -24,12 +35,12 @@ class to_binary():
 
                 for y in xrange(img.size[1]):
                     for x in xrange(img.size[0]):
-                        if pixdata[x, y][0] < 90:
+                        if pixdata[x, y][0] < 200:
                             pixdata[x, y] = (0, 0, 0, 255)
 
                 for y in xrange(img.size[1]):
                     for x in xrange(img.size[0]):
-                        if pixdata[x, y][1] < 136:
+                        if pixdata[x, y][1] < 160:
                             pixdata[x, y] = (0, 0, 0, 255)
 
                 for y in xrange(img.size[1]):
@@ -37,30 +48,45 @@ class to_binary():
                         if pixdata[x, y][2] > 0:
                             pixdata[x, y] = (255, 255, 255, 255)
 
-                    # img.save(path + f, "GIF")
-                return f
 
 
-class sp:
-    __img = ""
+                    img.save(path + f, "GIF")
 
-    def __init__(self,img):
-        self.__img = img
 
-    def division(self):
-        j = 1
-        dir = "tmp/"
-        f = Image.open(dir + self.__img)
-        for i in range(4):
-            x = 5+i*13  # 这里的数字参数需要自己
-            y = 2           #根据验证码图片的像素进行
-            f.crop((x, y, x+10, y+15)).save("font/%d.gif" % j)   #适当的修改
-            print x, y
-            j += 1
+
+class clear:
+    def __init__(self, f):
+        self.img = f
+        im = Image.open(self.img)
+        enhancer = ImageEnhance.Contrast(im)
+        im = enhancer.enhance(2)
+        im = im.convert('1')
+
+        self.im = im
+
+
+    def clear_main(self):
+        w, h = self.im.size
+        p = []
+        for y in range(0, h, 5):
+            for x in range(0, w, 5):
+                box = (x, y, x + 5, y + 5)
+                im1 = self.im.crop(box)
+
+
+                a = numpoint(im1)
+                if a < 10.5:
+                    for i in range(x, x + 5):
+                        for j in range(y, y + 5):
+                            self.im.putpixel((i, j), 255)
+
+        self.im.save(r'tmp/pre_img.jpg')
 
 
 
 if __name__ == '__main__':
-    s = sp("1.jpg")
-    s.division()
+    # s = sp("1.jpg")
+    # s.division()
     # print to_binary().save_binary()
+    s = clear("tmp/ca.png")
+    print s.clear_main()
